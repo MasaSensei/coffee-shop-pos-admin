@@ -1,0 +1,59 @@
+# =====================
+# OS & Editor
+# =====================
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+*.swp
+
+# =====================
+# Go (Backend)
+# =====================
+# Build output
+/backend/bin/
+/backend/tmp/
+/backend/*.exe
+
+# Go test & coverage
+/backend/*.out
+/backend/coverage/
+
+# Go env
+/backend/go.work
+/backend/go.sum.bak
+
+# =====================
+# Database
+# =====================
+# SQLite database (local only)
+/backend/db/*.db
+/backend/db/*.db-shm
+/backend/db/*.db-wal
+
+# =====================
+# Logs
+# =====================
+*.log
+
+# =====================
+# Frontend (Preact / Node)
+# =====================
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+/frontend/.cache/
+
+# =====================
+# Env files
+# =====================
+.env
+.env.*
+!.env.example
+
+# =====================
+# Misc
+# =====================
+*.tmp
+*.bak
