@@ -9,18 +9,10 @@ import (
 
 var ErrUserNotFound = errors.New("user not found")
 
-type User struct {
-	ID        int
-	Name      string
-	Username  string
-	Password  string
-	Role      string
-	CreatedAt string
-}
-
 type Repository interface {
 	FindByUsername(username string) (*User, error)
 	FindByID(id int) (*User, error)
+	Create(user *User) error
 }
 
 type repository struct {
@@ -53,6 +45,24 @@ func (r *repository) FindByID(id int) (*User, error) {
 	`, id)
 
 	return scanUser(row)
+}
+
+func (r *repository) Create(user *User) error {
+	result, err := r.db.Exec(`
+		INSERT INTO users (name, username, password, role, created_at)
+		VALUES (?, ?, ?, ?, ?)
+	`, user.Name, user.Username, user.Password, user.Role, user.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	user.ID = int(id)
+
+	return nil
 }
 
 func scanUser(row *sql.Row) (*User, error) {

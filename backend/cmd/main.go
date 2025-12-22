@@ -6,6 +6,7 @@ import (
 	"github.com/MasaSensei/pos-admin/internal/app"
 	config "github.com/MasaSensei/pos-admin/internal/config/database"
 	"github.com/MasaSensei/pos-admin/internal/shared/database"
+	"github.com/MasaSensei/pos-admin/internal/shared/seed"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -29,7 +30,9 @@ func main() {
 	}
 
 	// 5. Register routes
-	app.Register(appFiber)
+	app.Register(appFiber, db)
+
+	seed.SeedAdmin(db)
 
 	// 6. Start server
 	log.Fatal(appFiber.Listen(":3000"))
