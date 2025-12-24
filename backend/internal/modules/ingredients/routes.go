@@ -1,4 +1,4 @@
-package menus
+package ingredients
 
 import (
 	"database/sql"
@@ -8,7 +8,8 @@ import (
 
 func RegisterRoutes(r fiber.Router, db *sql.DB) {
 	repo := NewRepository(db)
-	handler := NewHandler(repo)
+	service := NewService(repo)
+	handler := NewHandler(service)
 
 	r.Get("/", handler.List)
 	r.Post("/", handler.Create)
