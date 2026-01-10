@@ -7,12 +7,14 @@ import {
   Users,
   LogOut,
   ChevronRight,
+  Tag,
 } from "lucide-preact";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
   { icon: Store, label: "Gerai / Outlets", href: "/outlets" },
-  { icon: Package, label: "Menu Kopi", href: "/products" },
+  { icon: Tag, label: "Kategori Menu", href: "/categories" }, // Pakai icon Tag dari Lucide
+  { icon: Package, label: "Daftar Menu", href: "/products" },
   { icon: Users, label: "Tim Barista", href: "/staff" },
 ];
 

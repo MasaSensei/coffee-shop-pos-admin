@@ -6,37 +6,17 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-preact";
+import { useDashboard } from "../../hooks/useDashboard";
 
 export function Dashboard() {
-  const stats = [
-    {
-      label: "Total Pendapatan",
-      value: "Rp 12.450.000",
-      trend: "+14.5%",
-      isUp: true,
-      icon: TrendingUp,
-      desc: "vs bulan lalu",
-      color: "from-amber-500 to-coffee-600",
-    },
-    {
-      label: "Pesanan Selesai",
-      value: "1,240",
-      trend: "+8.2%",
-      isUp: true,
-      icon: Coffee,
-      desc: "cup terjual hari ini",
-      color: "from-coffee-700 to-coffee-900",
-    },
-    {
-      label: "Pelanggan Baru",
-      value: "128",
-      trend: "-2.4%",
-      isUp: false,
-      icon: Users,
-      desc: "minggu ini",
-      color: "from-stone-700 to-stone-900",
-    },
-  ];
+  const { stats, loading } = useDashboard();
+
+  if (loading)
+    return (
+      <div className="p-10 text-center font-black uppercase">
+        Sedang Meracik Data... ☕
+      </div>
+    );
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700">

@@ -1,4 +1,4 @@
-package menus
+package shifts
 
 import (
 	"database/sql"
@@ -11,8 +11,8 @@ func RegisterRoute(router fiber.Router, db *sql.DB) {
 	svc := NewService(repo)
 	handler := NewHandler(svc)
 
-	menus := router.Group("/menus")
-	menus.Get("/", handler.Index)
-	menus.Post("/", handler.Store)
-	menus.Put("/:id", handler.Update)
+	s := router.Group("/shifts")
+	s.Post("/open", handler.Open)
+	s.Get("/active", handler.CheckActive)
+	s.Post("/close", handler.Close)
 }

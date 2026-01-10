@@ -1,0 +1,25 @@
+package purchasing
+
+import "time"
+
+type PurchaseOrder struct {
+	ID         int                 `json:"id"`
+	SupplierID int                 `json:"supplier_id"`
+	UserID     int                 `json:"user_id"`
+	OutletID   int                 `json:"outlet_id"`
+	PONumber   string              `json:"po_number"`
+	Status     string              `json:"status"`
+	TotalCost  float64             `json:"total_cost"`
+	ReceivedAt *time.Time          `json:"received_at"`
+	CreatedAt  time.Time           `json:"created_at"`
+	Items      []PurchaseOrderItem `json:"items"` // Detail item di dalam PO
+}
+
+type PurchaseOrderItem struct {
+	ID              int     `json:"id"`
+	PurchaseOrderID int     `json:"purchase_order_id"`
+	IngredientID    int     `json:"ingredient_id"`
+	QtyReceived     float64 `json:"qty_received"`
+	CostPerUnit     float64 `json:"cost_per_unit"`
+	Subtotal        float64 `json:"subtotal"`
+}

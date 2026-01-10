@@ -1,4 +1,4 @@
-package menus
+package purchasing
 
 import (
 	"database/sql"
@@ -11,8 +11,7 @@ func RegisterRoute(router fiber.Router, db *sql.DB) {
 	svc := NewService(repo)
 	handler := NewHandler(svc)
 
-	menus := router.Group("/menus")
-	menus.Get("/", handler.Index)
-	menus.Post("/", handler.Store)
-	menus.Put("/:id", handler.Update)
+	p := router.Group("/purchasing")
+	p.Post("/orders", handler.Store)
+	p.Get("/orders", handler.Index)
 }

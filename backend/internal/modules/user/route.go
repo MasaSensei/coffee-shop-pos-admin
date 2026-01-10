@@ -12,5 +12,8 @@ func RegisterRoute(router fiber.Router, db *sql.DB) {
 	handler := NewHandler(svc)
 
 	users := router.Group("/users")
-	users.Post("/register", handler.Register)
+	users.Post("/register", handler.CreateStaff)
+	users.Get("/", handler.GetAllStaff)
+	users.Put("/:id", handler.UpdateStaff)
+	users.Delete("/:id", handler.DeleteStaff)
 }

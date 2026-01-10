@@ -16,6 +16,7 @@ import {
   MapPin,
   Phone,
 } from "lucide-preact";
+import { PageHeader } from "../../components/shared/PageHeader";
 
 // 1. Pindahkan definisi statis ke luar komponen agar tidak dibuat ulang tiap render
 const FORM_FIELDS = [
@@ -123,22 +124,14 @@ export function Outlets() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* HEADER */}
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-4xl font-black text-stone-900 uppercase tracking-tighter leading-none">
-            Outlet
-          </h1>
-          <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] mt-3">
-            Operations Center
-          </p>
-        </div>
-        <button
-          onClick={() => setIsAdding(true)}
-          className="flex items-center gap-2 px-8 py-4 bg-coffee-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-coffee-950 transition-all shadow-xl shadow-coffee-900/20 active:scale-95"
-        >
-          <Plus size={18} /> Tambah Cabang
-        </button>
-      </div>
+      <PageHeader
+        title="Outlet"
+        badge="Center"
+        subtitle="Operations & Branch Management"
+        icon={Store}
+        buttonLabel="Tambah Cabang"
+        onButtonClick={() => setIsAdding(true)}
+      />
 
       {/* SEARCH BAR */}
       <div className="relative max-w-md group">

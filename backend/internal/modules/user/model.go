@@ -10,7 +10,7 @@ type User struct {
 	Password     string     `json:"password,omitempty"` // omitempty agar password tidak muncul di response
 	PasswordHash string     `json:"-"`                  // sama sekali tidak muncul di JSON
 	Role         string     `json:"role"`
-	IsActive     int        `json:"is_active"`
+	IsActive     bool       `json:"is_active"`
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    *time.Time `json:"updated_at"`
 }

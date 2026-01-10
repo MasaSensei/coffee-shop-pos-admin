@@ -6,6 +6,9 @@ import { AdminRoute } from "./components/shared/AdminRoute";
 import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { Outlets } from "./pages/Outlets"; // Halaman baru nanti
+import { Products } from "./pages/Products";
+import { Categories } from "./pages/Categories";
+import { Staff } from "./pages/Staff";
 
 export function App() {
   return (
@@ -25,6 +28,17 @@ export function App() {
           component={Outlets}
           title="Manajemen Outlet"
         />
+        <AdminRoute
+          path="/products"
+          component={Products}
+          title="Manajemen Menu Kopi"
+        />
+        <AdminRoute
+          path="/categories"
+          component={Categories}
+          title="Manajemen Kategori Menu"
+        />
+        <AdminRoute path="/staff" component={Staff} title="Manajemen Staff" />
       </Router>
     </LocationProvider>
   );

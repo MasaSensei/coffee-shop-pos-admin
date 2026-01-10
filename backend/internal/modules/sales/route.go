@@ -1,4 +1,4 @@
-package menus
+package sales
 
 import (
 	"database/sql"
@@ -7,12 +7,15 @@ import (
 )
 
 func RegisterRoute(router fiber.Router, db *sql.DB) {
+	// Inisialisasi Layer
 	repo := NewRepository(db)
 	svc := NewService(repo)
 	handler := NewHandler(svc)
 
-	menus := router.Group("/menus")
-	menus.Get("/", handler.Index)
-	menus.Post("/", handler.Store)
-	menus.Put("/:id", handler.Update)
+	// Grouping Route Sales
+	s := router.Group("/sales")
+
+	// Endpoint utama untuk transaksi (Checkout)
+	s.Post("/checkout", handler.Store)
+
 }
