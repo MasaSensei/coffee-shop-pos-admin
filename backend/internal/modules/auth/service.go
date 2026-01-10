@@ -3,49 +3,39 @@ package auth
 import (
 	"errors"
 
-	"github.com/MasaSensei/pos-admin/internal/modules/users"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/MasaSensei/pos-admin/internal/modules/user"
+	"github.com/MasaSensei/pos-admin/internal/shared/utils"
 )
-
-var (
-	ErrInvalidCredentials = errors.New("invalid credentials")
-)
-
-type LoginResult struct {
-	ID       int
-	Name     string
-	Username string
-	Role     string
-}
 
 type Service interface {
-	Login(username, password string) (*LoginResult, error)
+	Login(username, password string) (string, error)
 }
 
 type service struct {
-	usersRepo users.Repository
+	userRepo user.Repository
 }
 
-func NewService(usersRepo users.Repository) Service {
-	return &service{
-		usersRepo: usersRepo,
-	}
+func NewService(repo user.Repository) Service {
+	return &service{userRepo: repo}
 }
 
-func (s *service) Login(username, password string) (*LoginResult, error) {
-	user, err := s.usersRepo.FindByUsername(username)
+func (s *service) Login(username, password string) (string, error) {
+	// 1. Cari user berdasarkan username
+	u, err := s.userRepo.GetByUsername(username)
 	if err != nil {
-		return nil, ErrInvalidCredentials
+		return "", errors.New("username atau password salah")
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, ErrInvalidCredentials
+	// 2. Cek apakah password cocok
+	if !utils.CheckPasswordHash(password, u.PasswordHash) {
+		return "", errors.New("username atau password salah")
 	}
 
-	return &LoginResult{
-		ID:       user.ID,
-		Name:     user.Name,
-		Username: user.Username,
-		Role:     user.Role,
-	}, nil
+	// 3. Generate Token JWT
+	token, err := utils.GenerateToken(u.ID, u.Role, u.OutletID)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

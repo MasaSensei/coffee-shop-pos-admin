@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/* Custom Fonts & Coffee Theme Variables */
+@theme {
+  --color-coffee-50: #fdf8f6;
+  --color-coffee-100: #f2e8e5;
+  --color-coffee-500: #8c614d;
+  --color-coffee-600: #724c3a;
+  --color-coffee-800: #3d2b1f;
+  --color-coffee-900: #261a13;
+
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+}

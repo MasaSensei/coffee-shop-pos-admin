@@ -1,6 +1,0 @@
-CREATE TABLE payment_methods (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR(50) NOT NULL,
-    type VARCHAR(20) NOT NULL, -- CASH, QRIS, CARD
-    is_active BOOLEAN DEFAULT 1
-);
