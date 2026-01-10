@@ -4,7 +4,12 @@ import (
 	"database/sql"
 
 	"github.com/MasaSensei/pos-admin/internal/modules/auth"
+	"github.com/MasaSensei/pos-admin/internal/modules/categories"
+	"github.com/MasaSensei/pos-admin/internal/modules/ingredients"
+	"github.com/MasaSensei/pos-admin/internal/modules/menu_variants"
+	"github.com/MasaSensei/pos-admin/internal/modules/menus"
 	"github.com/MasaSensei/pos-admin/internal/modules/outlet"
+	"github.com/MasaSensei/pos-admin/internal/modules/recipes"
 	"github.com/MasaSensei/pos-admin/internal/modules/user"
 	"github.com/MasaSensei/pos-admin/internal/shared/middleware"
 	"github.com/gofiber/fiber/v2"
@@ -20,5 +25,9 @@ func Register(app *fiber.App, db *sql.DB) {
 
 	user.RegisterRoute(api, db)
 	outlet.RegisterRoute(api, db)
-
+	ingredients.RegisterRoute(api, db)
+	categories.RegisterRoute(api, db)
+	menus.RegisterRoute(api, db)
+	recipes.RegisterRoute(api, db)
+	menu_variants.RegisterRoute(api, db)
 }
