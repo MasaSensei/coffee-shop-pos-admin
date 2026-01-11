@@ -44,3 +44,24 @@ func (h *Handler) Index(c *fiber.Ctx) error {
 		Meta: utils.CreateMeta(total, page, limit),
 	})
 }
+
+func (h *Handler) Show(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "ID tidak valid"})
+	}
+
+	shiftPage := c.QueryInt("shift_page", 1)
+	shiftLimit := c.QueryInt("shift_limit", 10)
+
+	detail, totalShifts, err := h.svc.GetDetail(id, shiftPage, shiftLimit)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	// Tetap gunakan utils.CreateMeta untuk konsistensi
+	return c.JSON(fiber.Map{
+		"data":        detail,
+		"meta_shifts": utils.CreateMeta(totalShifts, shiftPage, shiftLimit),
+	})
+}

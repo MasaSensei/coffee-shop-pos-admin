@@ -31,11 +31,20 @@ func JWTMiddleware(c *fiber.Ctx) error {
 		})
 	}
 
-	// 4. Simpan data user dari token ke context (agar bisa dipakai di handler/service)
 	claims := token.Claims.(jwt.MapClaims)
-	c.Locals("user_id", claims["user_id"])
-	c.Locals("role", claims["role"])
-	c.Locals("outlet_id", claims["outlet_id"])
+
+	// Konversi float64 ke int sebelum disimpan ke Locals
+	if val, ok := claims["user_id"].(float64); ok {
+		c.Locals("user_id", int(val))
+	}
+
+	if val, ok := claims["role"].(string); ok {
+		c.Locals("role", val)
+	}
+
+	if val, ok := claims["outlet_id"].(float64); ok {
+		c.Locals("outlet_id", int(val))
+	}
 
 	return c.Next()
 }

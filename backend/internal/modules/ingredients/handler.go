@@ -15,12 +15,8 @@ func NewHandler(s Service) *Handler {
 }
 
 func (h *Handler) GetByOutlet(c *fiber.Ctx) error {
-	outletIDStr := c.Query("outlet_id")
-	if outletIDStr == "" {
-		return c.Status(400).JSON(fiber.Map{"error": "outlet_id is required"})
-	}
-
-	outletID, _ := strconv.Atoi(outletIDStr)
+	// Biarkan kosong jika tidak ada, strconv.Atoi akan menghasilkan 0
+	outletID, _ := strconv.Atoi(c.Query("outlet_id"))
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "10"))
 
@@ -31,6 +27,7 @@ func (h *Handler) GetByOutlet(c *fiber.Ctx) error {
 
 	return c.JSON(response)
 }
+
 func (h *Handler) Store(c *fiber.Ctx) error {
 	var input Ingredient
 	if err := c.BodyParser(&input); err != nil {

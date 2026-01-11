@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "preact/hooks";
+import { useState, useEffect, useMemo, useCallback } from "preact/hooks";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { outletService } from "../core/services/outlet.service";
@@ -126,4 +126,41 @@ export function useOutlet() {
     setDeleteId,
     confirmDelete,
   };
+}
+
+export function useOutletDetail(id) {
+  const [data, setData] = useState(null);
+  const [metaShifts, setMetaShifts] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [shiftPage, setShiftPage] = useState(1);
+  const [error, setError] = useState(null);
+
+  const fetchDetail = useCallback(async () => {
+    // Pastikan ID ada dan bukan string kosong
+    if (!id) return;
+
+    try {
+      setLoading(true);
+      const res = await outletService.getDetail(id, shiftPage);
+
+      console.log("Response Raw:", res); // Cek apakah axios merespon
+
+      if (res.data) {
+        // Sesuaikan dengan mapping database Go Anda
+        setData(res.data.data || res.data);
+        setMetaShifts(res.data.meta_shifts || null);
+      }
+    } catch (err) {
+      console.error("Fetch Error:", err);
+      setError(err.response?.data?.error || "Gagal memuat data");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, shiftPage]); // Fungsi hanya berubah jika ID atau Page berubah
+
+  useEffect(() => {
+    fetchDetail();
+  }, [fetchDetail]); // Panggil fungsi saat fungsi berubah
+
+  return { data, metaShifts, loading, error, shiftPage, setShiftPage };
 }

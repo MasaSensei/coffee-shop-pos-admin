@@ -3,6 +3,7 @@ package purchasing
 import (
 	"context"
 	"database/sql"
+	"strings"
 )
 
 type Repository interface {
@@ -80,8 +81,12 @@ func (r *repository) FetchAll(ctx context.Context, offset, limit int) ([]Purchas
 	var total int
 	r.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM purchase_orders").Scan(&total)
 
-	query := `SELECT id, supplier_id, user_id, po_number, status, total_cost, created_at 
-			  FROM purchase_orders ORDER BY created_at DESC LIMIT ? OFFSET ?`
+	query := `
+        SELECT po.id, po.supplier_id, s.name as supplier_name, po.user_id, po.outlet_id, 
+               po.po_number, po.status, po.total_cost, po.created_at 
+        FROM purchase_orders po
+        LEFT JOIN suppliers s ON po.supplier_id = s.id
+        ORDER BY po.created_at DESC LIMIT ? OFFSET ?`
 
 	rows, err := r.db.QueryContext(ctx, query, limit, offset)
 	if err != nil {
@@ -90,10 +95,69 @@ func (r *repository) FetchAll(ctx context.Context, offset, limit int) ([]Purchas
 	defer rows.Close()
 
 	var results []PurchaseOrder
+	var poIDs []interface{}
+
+	// PERBAIKAN: Map menyimpan ID -> Index di dalam slice results
+	poIndexMap := make(map[int]int)
+
 	for rows.Next() {
 		var po PurchaseOrder
-		rows.Scan(&po.ID, &po.SupplierID, &po.UserID, &po.PONumber, &po.Status, &po.TotalCost, &po.CreatedAt)
+		err := rows.Scan(&po.ID, &po.SupplierID, &po.SupplierName, &po.UserID, &po.OutletID,
+			&po.PONumber, &po.Status, &po.TotalCost, &po.CreatedAt)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		po.Items = []PurchaseOrderItem{}
 		results = append(results, po)
+
+		// Simpan index terakhir (len - 1)
+		currIndex := len(results) - 1
+		poIDs = append(poIDs, po.ID)
+		poIndexMap[po.ID] = currIndex
 	}
+
+	if len(poIDs) == 0 {
+		return results, total, nil
+	}
+
+	itemsQuery := `
+        SELECT poi.purchase_order_id, poi.id, poi.ingredient_id, i.name as ingredient_name, 
+               poi.qty_received, poi.cost_per_unit, poi.subtotal
+        FROM purchase_order_items poi
+        LEFT JOIN ingredients i ON poi.ingredient_id = i.id
+        WHERE poi.purchase_order_id IN (` + r.generatePlaceholders(len(poIDs)) + `)`
+
+	itemRows, err := r.db.QueryContext(ctx, itemsQuery, poIDs...)
+	if err == nil {
+		defer itemRows.Close()
+		for itemRows.Next() {
+			var item PurchaseOrderItem
+			var poID int
+			err := itemRows.Scan(&poID, &item.ID, &item.IngredientID, &item.IngredientName,
+				&item.QtyReceived, &item.CostPerUnit, &item.Subtotal)
+			if err != nil {
+				continue
+			}
+
+			// Gunakan Index untuk mengakses langsung ke slice results
+			if index, ok := poIndexMap[poID]; ok {
+				results[index].Items = append(results[index].Items, item)
+			}
+		}
+	}
+
 	return results, total, nil
+}
+
+// Tambahkan Method ini di bawah FetchAll (Pastikan nama method sama: r.generatePlaceholders)
+func (r *repository) generatePlaceholders(n int) string {
+	if n <= 0 {
+		return ""
+	}
+	ps := make([]string, n)
+	for i := range ps {
+		ps[i] = "?"
+	}
+	return strings.Join(ps, ",")
 }

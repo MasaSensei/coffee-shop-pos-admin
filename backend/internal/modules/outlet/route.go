@@ -14,4 +14,5 @@ func RegisterRoute(router fiber.Router, db *sql.DB) {
 	outlets := router.Group("/outlets")
 	outlets.Post("/", handler.Store)
 	outlets.Get("/", handler.Index)
+	outlets.Get("/:id", handler.Show)
 }

@@ -16,20 +16,26 @@ func NewService(repo Repository) Service {
 }
 
 func (s *service) GetOutletStock(outletID int, page int, limit int) (utils.PaginatedResponse, error) {
-	// Hitung offset
 	offset := (page - 1) * limit
+	var data []Ingredient
+	var total int
+	var err error
 
-	data, total, err := s.repo.FetchByOutlet(outletID, offset, limit)
+	if outletID > 0 {
+		// Jika ada ID, filter per outlet
+		data, total, err = s.repo.FetchByOutlet(outletID, offset, limit)
+	} else {
+		// Jika ID 0, ambil semua (PENTING untuk Dropdown Purchasing)
+		data, total, err = s.repo.FetchAll(offset, limit)
+	}
+
 	if err != nil {
 		return utils.PaginatedResponse{}, err
 	}
 
-	// Gunakan helper CreateMeta kamu
-	meta := utils.CreateMeta(total, page, limit)
-
 	return utils.PaginatedResponse{
 		Data: data,
-		Meta: meta,
+		Meta: utils.CreateMeta(total, page, limit),
 	}, nil
 }
 

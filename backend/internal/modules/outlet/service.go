@@ -8,6 +8,7 @@ import (
 type Service interface {
 	Create(req CreateRequest) (int64, error)
 	FindAll(page, limit int) ([]Outlet, int, error)
+	GetDetail(id, shiftPage, shiftLimit int) (*OutletDetailResponse, int, error)
 }
 
 type service struct {
@@ -41,4 +42,16 @@ func (s *service) FindAll(page, limit int) ([]Outlet, int, error) {
 
 	// Panggil r.repo.FindAll (sesuai nama baru di interface)
 	return s.repo.FindAll(page, limit)
+}
+
+func (s *service) GetDetail(id, shiftPage, shiftLimit int) (*OutletDetailResponse, int, error) {
+	if shiftLimit <= 0 {
+		shiftLimit = 10
+	}
+	if shiftPage <= 0 {
+		shiftPage = 1
+	}
+
+	// Memanggil repository GetDetail (asumsi repo sudah diupdate ke GetDetail)
+	return s.repo.GetDetail(id, shiftPage, shiftLimit)
 }

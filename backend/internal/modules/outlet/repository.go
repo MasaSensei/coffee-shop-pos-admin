@@ -7,7 +7,7 @@ import (
 type Repository interface {
 	Insert(o Outlet) (int64, error)
 	FindAll(page, limit int) ([]Outlet, int, error)
-	GetByID(id int) (*Outlet, error)
+	GetDetail(id int, shiftPage, shiftLimit int) (*OutletDetailResponse, int, error)
 }
 
 type repository struct {
@@ -58,12 +58,68 @@ func (r *repository) FindAll(page, limit int) ([]Outlet, int, error) {
 	return outlets, total, nil
 }
 
-func (r *repository) GetByID(id int) (*Outlet, error) {
-	var o Outlet
+func (r *repository) GetDetail(id int, shiftPage, shiftLimit int) (*OutletDetailResponse, int, error) {
+	var detail OutletDetailResponse
+	var totalShifts int
+
+	// 1. Ambil Data Dasar Outlet
 	query := `SELECT id, name, address, phone, is_active FROM outlets WHERE id = ?`
-	err := r.DB.QueryRow(query, id).Scan(&o.ID, &o.Name, &o.Address, &o.Phone, &o.IsActive)
+	err := r.DB.QueryRow(query, id).Scan(&detail.ID, &detail.Name, &detail.Address, &detail.Phone, &detail.IsActive)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return &o, nil
+
+	// 2. Ambil Manager (Role 'Manager' sesuai skema users)
+	queryMgr := `SELECT id, name, role FROM users WHERE outlet_id = ? AND role = 'Manager' LIMIT 1`
+	var mgr Staff
+	errMgr := r.DB.QueryRow(queryMgr, id).Scan(&mgr.ID, &mgr.Name, &mgr.Role)
+	if errMgr == nil {
+		detail.Manager = &mgr
+	}
+
+	// 3. Ambil Tim Staff (Selain Manager)
+	queryStaffs := `SELECT id, name, role FROM users WHERE outlet_id = ? AND role != 'Manager'`
+	rowsStaff, err := r.DB.Query(queryStaffs, id)
+	if err == nil {
+		defer rowsStaff.Close()
+		for rowsStaff.Next() {
+			var s Staff
+			rowsStaff.Scan(&s.ID, &s.Name, &s.Role)
+			detail.Staffs = append(detail.Staffs, s)
+		}
+	}
+
+	// 4. Ambil Riwayat Shift (SESUAI TABEL SHIFTS BARU)
+	r.DB.QueryRow("SELECT COUNT(*) FROM shifts WHERE outlet_id = ?", id).Scan(&totalShifts)
+
+	offset := (shiftPage - 1) * shiftLimit
+	queryShifts := `
+        SELECT 
+            s.id, 
+            u.name as barista_name, 
+            s.opened_at, 
+            s.discrepancy,
+            s.note
+        FROM shifts s
+        JOIN users u ON s.user_id = u.id
+        WHERE s.outlet_id = ? 
+        ORDER BY s.opened_at DESC 
+        LIMIT ? OFFSET ?`
+
+	rowsShift, err := r.DB.Query(queryShifts, id, shiftLimit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rowsShift.Close()
+
+	for rowsShift.Next() {
+		var sh Shift
+		// Scan harus urut sesuai urutan SELECT di atas
+		if err := rowsShift.Scan(&sh.ID, &sh.Barista, &sh.OpenedAt, &sh.Discrepancy, &sh.Note); err != nil {
+			continue
+		}
+		detail.Shifts = append(detail.Shifts, sh)
+	}
+
+	return &detail, totalShifts, nil
 }

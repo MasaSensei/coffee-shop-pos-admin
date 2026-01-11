@@ -3,7 +3,7 @@ package ingredients
 import "database/sql"
 
 type Repository interface {
-	// Tambahkan offset, limit, dan return int (total) di interface
+	FetchAll(offset int, limit int) ([]Ingredient, int, error)
 	FetchByOutlet(outletID int, offset int, limit int) ([]Ingredient, int, error)
 	Create(i Ingredient) error
 }
@@ -14,6 +14,28 @@ type repository struct {
 
 func NewRepository(db *sql.DB) Repository {
 	return &repository{db}
+}
+
+func (r *repository) FetchAll(offset int, limit int) ([]Ingredient, int, error) {
+	var total int
+	r.db.QueryRow(`SELECT COUNT(*) FROM ingredients`).Scan(&total)
+
+	query := `SELECT id, outlet_id, name, unit, stock_qty, avg_cost_price 
+              FROM ingredients LIMIT ? OFFSET ?`
+
+	rows, err := r.db.Query(query, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var res []Ingredient = []Ingredient{} // Inisialisasi slice kosong agar JSON tidak null
+	for rows.Next() {
+		var i Ingredient
+		rows.Scan(&i.ID, &i.OutletID, &i.Name, &i.Unit, &i.StockQty, &i.AvgCostPrice)
+		res = append(res, i)
+	}
+	return res, total, nil
 }
 
 func (r *repository) FetchByOutlet(outletID int, offset int, limit int) ([]Ingredient, int, error) {

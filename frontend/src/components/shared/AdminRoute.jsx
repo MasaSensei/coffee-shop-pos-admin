@@ -1,18 +1,20 @@
 import { AdminLayout } from "../../layouts/AdminLayout";
 
-// Komponen ini menerima Component (halaman) dan title sebagai props
-export function AdminRoute({ component: Component, title }) {
+export function AdminRoute({ component: Component, title, ...rest }) {
+  // logic cek auth (misal: ambil token)
   const token = localStorage.getItem("token");
 
-  // Jika tidak ada token, tendang ke login
   if (!token) {
-    window.location.href = "/";
-    return null;
+    // redirect ke login jika perlu
+    return (window.location.href = "/"), null;
   }
 
   return (
     <AdminLayout title={title}>
-      <Component />
+      {/* POIN KRUSIAL: 
+        Gunakan {...rest} agar 'id' dari router diteruskan ke Component (OutletDetail)
+      */}
+      <Component {...rest} />
     </AdminLayout>
   );
 }
