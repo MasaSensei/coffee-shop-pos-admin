@@ -65,3 +65,16 @@ func (h *Handler) Update(c *fiber.Ctx) error {
 		"message": "Menu berhasil diperbarui",
 	})
 }
+
+func (h *Handler) Show(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "ID tidak valid"})
+	}
+
+	res, err := h.svc.GetByID(id)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "Menu tidak ditemukan"})
+	}
+	return c.JSON(res)
+}

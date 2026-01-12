@@ -14,6 +14,8 @@ import { Ingredients } from "./pages/Ingridients";
 import { Suppliers } from "./pages/Suppliers";
 import { Purchases } from "./pages/Purchases";
 import { AppProvider } from "./core/context/AppContext";
+import { StockHistory } from "./pages/StockHistory";
+import { ProductRecipe } from "./pages/Products/Detail";
 
 const ADMIN_ROUTES = [
   { path: "/dashboard", component: Dashboard, title: "Ringkasan Kedai" },
@@ -21,6 +23,11 @@ const ADMIN_ROUTES = [
   // Tambahkan rute detail di sini
   { path: "/outlets/:id", component: OutletDetail, title: "Audit Operasional" },
   { path: "/products", component: Products, title: "Manajemen Menu Kopi" },
+  {
+    path: "/products/:id/recipe",
+    component: ProductRecipe,
+    title: "Atur Resep Kopi",
+  },
   {
     path: "/categories",
     component: Categories,
@@ -34,6 +41,7 @@ const ADMIN_ROUTES = [
   { path: "/staff", component: Staff, title: "Manajemen Staff" },
   { path: "/suppliers", component: Suppliers, title: "Manajemen Supplier" },
   { path: "/purchasing", component: Purchases, title: "Purchasing" },
+  { path: "/stock-history", component: StockHistory, title: "Riwayat Stok" },
 ];
 
 export function App() {

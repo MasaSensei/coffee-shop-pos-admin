@@ -5,6 +5,7 @@ import "database/sql"
 type Repository interface {
 	FetchByVariant(variantID int) ([]Recipe, error)
 	Create(r Recipe) error
+	DeleteByVariant(variantID int) error
 }
 
 type repository struct {
@@ -32,5 +33,10 @@ func (r *repository) FetchByVariant(variantID int) ([]Recipe, error) {
 func (r *repository) Create(rc Recipe) error {
 	_, err := r.db.Exec(`INSERT INTO recipes (menu_variant_id, ingredient_id, quantity_needed) VALUES (?, ?, ?)`,
 		rc.MenuVariantID, rc.IngredientID, rc.QuantityNeeded)
+	return err
+}
+
+func (r *repository) DeleteByVariant(variantID int) error {
+	_, err := r.db.Exec(`DELETE FROM recipes WHERE menu_variant_id = ?`, variantID)
 	return err
 }

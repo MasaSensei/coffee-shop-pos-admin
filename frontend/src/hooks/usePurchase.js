@@ -49,7 +49,7 @@ export function usePurchase() {
         supplierService.getAll(1, 100), // 3. Beri limit yang jelas
         // 4. Kirim activeOutletId agar Go FetchByOutlet bekerja
         // Jika null/0, Go akan FetchAll (sudah kita handle di Backend)
-        ingredientService.getAll(0, 1, 100),
+        ingredientService.getAll(0, 100),
       ]);
 
       setOrders(pRes.data.data || []);

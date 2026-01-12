@@ -13,5 +13,5 @@ func RegisterRoute(router fiber.Router, db *sql.DB) {
 
 	r := router.Group("/recipes")
 	r.Get("/variant/:variant_id", handler.GetByVariant) // Pakai params sesuai handlermu
-	r.Post("/", handler.Store)
+	r.Post("/", handler.StoreBatch)
 }

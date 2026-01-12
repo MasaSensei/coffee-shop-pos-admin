@@ -1,30 +1,58 @@
 import { api } from "../api";
 
 export const ingredientService = {
-  getAll: async (outletId, page = 1, limit = 100) => {
-    return await ingredientService.getByOutlet(outletId, page, limit);
-  },
   /**
-   * Mengambil bahan baku berdasarkan outlet_id
-   * Endpoint: GET {{base_url}}/ingredients?outlet_id=1
+   * Mengambil semua bahan baku (biasanya untuk dropdown)
+   */
+  getAll: async (page = 1, limit = 100) => {
+    return await api.get("/ingredients", {
+      params: { page, limit },
+    });
+  },
+
+  /**
+   * Mengambil bahan baku berdasarkan outlet_id dengan pagination
    */
   getByOutlet: async (outletId, page = 1, limit = 10) => {
-    const offset = (page - 1) * limit;
     return await api.get("/ingredients", {
       params: {
         outlet_id: outletId,
+        page: page,
         limit: limit,
-        offset: offset,
       },
     });
   },
 
   /**
    * Mendaftarkan bahan baku baru
-   * Endpoint: POST {{base_url}}/ingredients
    */
   store: async (payload) => {
-    // Payload: { outlet_id, name, unit, stock_qty, avg_cost_price }
     return await api.post("/ingredients", payload);
+  },
+
+  /**
+   * Mengambil riwayat stok GLOBAL (Semua bahan)
+   * Digunakan di halaman /stock-history
+   */
+  getAllHistory: async (page = 1, limit = 10) => {
+    return await api.get("/ingredients/history", {
+      params: { page, limit },
+    });
+  },
+
+  /**
+   * Mengambil riwayat stok spesifik per Bahan
+   * Digunakan di Modal Detail Bahan
+   */
+  getHistoryByIngredient: async (id) => {
+    return await api.get(`/ingredients/${id}/history`);
+  },
+
+  /**
+   * Melakukan penyesuaian stok manual (ADJUST, WASTE, dll)
+   */
+  adjustStock: async (payload) => {
+    // payload: { ingredient_id, quantity, type }
+    return await api.post("/ingredients/adjust", payload);
   },
 };

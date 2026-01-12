@@ -29,15 +29,26 @@ func (h *Handler) GetByVariant(c *fiber.Ctx) error {
 	return c.JSON(data)
 }
 
-func (h *Handler) Store(c *fiber.Ctx) error {
-	var r Recipe
-	if err := c.BodyParser(&r); err != nil {
+// Di Handler Store (recipes/handler.go)
+func (h *Handler) StoreBatch(c *fiber.Ctx) error {
+	var req []Recipe
+	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Input tidak valid"})
 	}
 
-	if err := h.svc.Create(r); err != nil {
+	if len(req) == 0 {
+		return c.Status(400).JSON(fiber.Map{"error": "Resep tidak boleh kosong"})
+	}
+
+	// Ambil variantID dari elemen pertama
+	variantID := req[0].MenuVariantID
+
+	// Panggil service Sync
+	if err := h.svc.SyncRecipe(variantID, req); err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(201).JSON(fiber.Map{"message": "Resep berhasil disimpan"})
+	return c.Status(201).JSON(fiber.Map{
+		"message": "Formula berhasil disinkronkan",
+	})
 }

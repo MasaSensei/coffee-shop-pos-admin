@@ -8,6 +8,7 @@ import (
 
 type Repository interface {
 	Fetch(offset, limit int) ([]Menu, int, error)
+	GetByID(id int) (Menu, error)
 	Create(m Menu) (int, error)
 	Update(id int, m Menu) error
 }
@@ -142,4 +143,43 @@ func (r *repository) Update(id int, m Menu) error {
 
 	// 5. Commit
 	return tx.Commit()
+}
+
+func (r *repository) GetByID(id int) (Menu, error) {
+	var m Menu
+	var variantsRaw string
+
+	query := `
+        SELECT 
+            m.id, m.category_id, c.name as category_name, 
+            m.name, m.description, m.is_active,
+            COALESCE(GROUP_CONCAT(pv.id || '|' || pv.variant_name || '|' || pv.price, ';'), '') as variants_raw
+        FROM menus m
+        LEFT JOIN categories c ON m.category_id = c.id
+        LEFT JOIN menu_variants pv ON m.id = pv.menu_id
+        WHERE m.id = ?
+        GROUP BY m.id`
+
+	err := r.db.QueryRow(query, id).Scan(&m.ID, &m.CategoryID, &m.CategoryName, &m.Name, &m.Description, &m.IsActive, &variantsRaw)
+	if err != nil {
+		return m, err
+	}
+
+	// Parsing varian (logika sama dengan Fetch)
+	if variantsRaw != "" {
+		vStrings := strings.Split(variantsRaw, ";")
+		for _, vStr := range vStrings {
+			p := strings.Split(vStr, "|")
+			if len(p) == 3 {
+				price, _ := strconv.ParseFloat(p[2], 64)
+				m.Variants = append(m.Variants, Variant{
+					ID:    p[0],
+					Name:  p[1],
+					Price: price,
+				})
+			}
+		}
+	}
+
+	return m, nil
 }

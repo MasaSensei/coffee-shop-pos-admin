@@ -10,6 +10,7 @@ import {
   Truck,
   Hash,
   ArrowRight,
+  CheckCircle2,
 } from "lucide-preact";
 import { DataTable } from "../../components/shared/DataTable";
 import { Modal } from "../../components/shared/Modal";
@@ -238,33 +239,42 @@ export function Purchases() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="New Purchase Order"
+        maxWidth="max-w-2xl"
       >
-        <form onSubmit={form.onSubmit} className="space-y-6">
-          <div className="bg-stone-50 p-6 rounded-[24px] border border-stone-100">
-            <label className="block text-[10px] font-black text-stone-400 uppercase mb-2 ml-1 tracking-widest">
-              Pilih Vendor / Supplier
-            </label>
-            <div className="relative">
-              <select
-                {...form.register("supplier_id")}
-                className="w-full p-4 bg-white border-2 border-stone-100 rounded-2xl font-bold outline-none focus:border-amber-600 appearance-none transition-all text-sm uppercase pr-12"
-              >
-                <option value="">-- PILIH SUPPLIER --</option>
-                {suppliers.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none"
-                size={20}
-              />
+        {/* Berikan h-[75vh] atau h-[600px] agar modal stabil sejak awal */}
+        <form
+          onSubmit={form.onSubmit}
+          className="flex flex-col h-[75vh] max-h-[700px] overflow-hidden"
+        >
+          {/* 1. HEADER / VENDOR (Tetap di atas) */}
+          <div className="shrink-0 p-1">
+            <div className="bg-stone-50 p-5 rounded-[24px] border border-stone-100">
+              <label className="block text-[10px] font-black text-stone-400 uppercase mb-2 ml-1 tracking-widest">
+                Pilih Vendor / Supplier
+              </label>
+              <div className="relative">
+                <select
+                  {...form.register("supplier_id")}
+                  className="w-full p-3.5 bg-white border-2 border-stone-100 rounded-2xl font-bold outline-none focus:border-amber-600 appearance-none transition-all text-sm uppercase pr-12"
+                >
+                  <option value="">-- PILIH SUPPLIER --</option>
+                  {suppliers.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none"
+                  size={18}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex justify-between items-center px-2">
+          {/* 2. AREA SCROLLABLE (Hanya bagian ini yang bergerak) */}
+          <div className="flex-1 overflow-y-auto my-4 pr-2 custom-scrollbar">
+            <div className="flex justify-between items-center px-2 mb-4 sticky top-0 bg-white/95 backdrop-blur-sm z-10 py-1">
               <h3 className="text-[10px] font-black uppercase text-stone-400 tracking-widest flex items-center gap-2 italic">
                 <Package size={14} className="text-amber-600" /> Detail Item
                 Pesanan
@@ -278,23 +288,23 @@ export function Purchases() {
                     cost_per_unit: 0,
                   })
                 }
-                className="text-[10px] font-black text-amber-700 bg-amber-50 px-4 py-1.5 rounded-xl hover:bg-amber-600 hover:text-white transition-all shadow-sm flex items-center gap-1"
+                className="text-[10px] font-black text-amber-700 bg-amber-50 px-4 py-2 rounded-xl hover:bg-amber-600 hover:text-white transition-all shadow-sm flex items-center gap-1 active:scale-95"
               >
                 <Plus size={14} /> TAMBAH ITEM
               </button>
             </div>
 
-            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-3 px-1">
               {form.fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="group relative flex flex-col gap-3 bg-white p-4 rounded-2xl border-2 border-stone-100 hover:border-amber-200 transition-all"
+                  className="group relative flex flex-col gap-3 bg-white p-4 rounded-2xl border-2 border-stone-100 hover:border-amber-200 transition-all shadow-sm"
                 >
                   <div className="flex gap-3">
                     <div className="flex-1">
                       <select
                         {...form.register(`items.${index}.ingredient_id`)}
-                        className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-[11px] font-bold outline-none focus:bg-white uppercase"
+                        className="w-full p-2.5 bg-stone-50 border border-stone-100 rounded-xl text-[11px] font-bold outline-none focus:bg-white uppercase"
                       >
                         <option value="">Pilih Bahan...</option>
                         {ingredients.map((ing) => (
@@ -307,9 +317,9 @@ export function Purchases() {
                     <button
                       type="button"
                       onClick={() => form.remove(index)}
-                      className="p-2 text-stone-300 hover:text-red-500 transition-colors"
+                      className="p-2 text-stone-300 hover:text-red-500 transition-colors bg-stone-50 rounded-lg"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
 
@@ -324,7 +334,7 @@ export function Purchases() {
                         {...form.register(`items.${index}.qty_received`, {
                           valueAsNumber: true,
                         })}
-                        className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-[11px] font-bold outline-none focus:bg-white"
+                        className="w-full p-2.5 bg-stone-50 border border-stone-100 rounded-xl text-[11px] font-bold outline-none focus:bg-white"
                       />
                     </div>
                     <div className="space-y-1">
@@ -336,7 +346,7 @@ export function Purchases() {
                         {...form.register(`items.${index}.cost_per_unit`, {
                           valueAsNumber: true,
                         })}
-                        className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-[11px] font-bold text-right outline-none focus:bg-white"
+                        className="w-full p-2.5 bg-stone-50 border border-stone-100 rounded-xl text-[11px] font-bold text-right outline-none focus:bg-white"
                       />
                     </div>
                   </div>
@@ -345,26 +355,36 @@ export function Purchases() {
             </div>
           </div>
 
-          <div className="bg-stone-900 rounded-[28px] p-6 flex justify-between items-center shadow-xl shadow-stone-200 border-t-4 border-amber-600">
-            <div className="flex items-center gap-4 text-white">
-              <div className="p-3 bg-stone-800 rounded-2xl text-amber-500">
-                <Calculator size={24} />
+          {/* 3. FOOTER (Tetap di bawah) */}
+          <div className="shrink-0 pt-2 border-t border-stone-100">
+            <div className="bg-stone-900 rounded-[24px] p-5 flex justify-between items-center shadow-xl shadow-stone-200">
+              <div className="flex items-center gap-3 text-white">
+                <div className="p-2.5 bg-stone-800 rounded-xl text-amber-500">
+                  <Calculator size={20} />
+                </div>
+                <div>
+                  <p className="text-[8px] font-black text-stone-500 uppercase tracking-widest leading-none mb-1">
+                    Estimasi Total
+                  </p>
+                  <p className="text-lg font-black italic tabular-nums">
+                    Rp {totalCost.toLocaleString()}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">
-                  Estimasi Total
-                </p>
-                <p className="text-xl font-black italic">
-                  Rp {totalCost.toLocaleString()}
-                </p>
-              </div>
+              <button
+                disabled={form.isLoading || form.fields.length === 0}
+                className="px-6 py-3.5 bg-amber-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-500 transition-all disabled:opacity-50 disabled:bg-stone-700 shadow-lg shadow-amber-900/20 flex items-center gap-2"
+              >
+                {form.isLoading ? (
+                  "MEMPROSES..."
+                ) : (
+                  <>
+                    <CheckCircle2 size={14} />
+                    KONFIRMASI
+                  </>
+                )}
+              </button>
             </div>
-            <button
-              disabled={form.isLoading}
-              className="px-8 py-4 bg-amber-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-amber-500 transition-all disabled:opacity-50"
-            >
-              {form.isLoading ? "MEMPROSES..." : "KONFIRMASI STOK"}
-            </button>
           </div>
         </form>
       </Modal>

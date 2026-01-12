@@ -7,6 +7,8 @@ import {
   Banknote,
   Trash,
   ChevronDown,
+  FlaskConical,
+  ExternalLink,
 } from "lucide-preact";
 import { DataTable } from "../../components/shared/DataTable";
 import { Modal } from "../../components/shared/Modal";
@@ -104,12 +106,24 @@ export function Products() {
       className: "text-right",
       render: (row) => (
         <div className="flex justify-end gap-2">
+          {/* Tombol Resep Baru */}
+          <button
+            onClick={() =>
+              (window.location.href = `/products/${row.id}/recipe`)
+            }
+            className="p-3 bg-stone-50 hover:bg-coffee-50 text-stone-400 hover:text-coffee-700 rounded-2xl transition-all active:scale-90 border border-transparent hover:border-coffee-100 flex items-center gap-2"
+            title="Atur Resep"
+          >
+            <FlaskConical size={18} />
+          </button>
+
           <button
             onClick={() => handleEdit(row)}
             className="p-3 bg-stone-50 hover:bg-amber-100 text-stone-400 hover:text-coffee-900 rounded-2xl transition-all active:scale-90"
           >
             <Edit3 size={18} />
           </button>
+
           <button
             onClick={() => handleDelete(row.id)}
             className="p-3 bg-stone-50 hover:bg-red-50 text-stone-400 hover:text-red-500 rounded-2xl transition-all active:scale-90"
@@ -124,8 +138,8 @@ export function Products() {
   return (
     <div className="space-y-8 pb-20">
       <PageHeader
-        title="Menu"
-        badge="Gallery"
+        title="Menu & Product"
+        badge={`${products.length} Items`}
         icon={Coffee}
         buttonLabel="Tambah Menu"
         onButtonClick={() => setIsModalOpen(true)}
@@ -134,26 +148,26 @@ export function Products() {
       {/* Search Bar */}
       <div className="relative max-w-md group">
         <Search
-          className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300"
+          className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 transition-colors group-focus-within:text-coffee-800"
           size={20}
         />
         <input
           value={search}
           onInput={(e) => setSearch(e.target.value)}
           placeholder="CARI MENU..."
-          className="w-full pl-14 pr-12 py-4 bg-white border-2 border-stone-100 rounded-2xl outline-none font-bold placeholder:text-stone-200"
+          className="w-full pl-14 pr-12 py-4 bg-white border-2 border-stone-100 rounded-2xl outline-none font-bold placeholder:text-stone-200 focus:border-coffee-800 transition-all shadow-sm"
         />
       </div>
 
       <DataTable columns={columns} data={products} loading={loading} />
 
+      {/* MODAL TAMBAH/EDIT */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleClose}
         title={selectedProduct ? "Edit Menu" : "Menu Baru"}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
-          {/* Row 1: Nama Produk */}
           <div className="space-y-2">
             <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">
               Nama Produk
@@ -164,18 +178,17 @@ export function Products() {
               className={`w-full px-6 py-4 bg-stone-50 border-2 rounded-2xl font-bold uppercase outline-none transition-all ${
                 errors.name
                   ? "border-red-200"
-                  : "border-stone-100 focus:border-coffee-800"
+                  : "border-stone-100 focus:border-coffee-800 focus:bg-white"
               }`}
             />
             {errors.name && (
-              <p className="text-[9px] font-bold text-red-500 uppercase ml-1">
+              <p className="text-[9px] font-bold text-red-500 uppercase ml-1 italic">
                 {errors.name.message}
               </p>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            {/* Kategori */}
             <div className="space-y-2">
               <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">
                 Kategori
@@ -183,7 +196,7 @@ export function Products() {
               <div className="relative">
                 <select
                   {...register("category_id")}
-                  className="w-full py-4 pl-5 pr-12 bg-stone-50 border-2 border-stone-100 rounded-2xl font-black uppercase text-[11px] appearance-none outline-none focus:border-coffee-800"
+                  className="w-full py-4 pl-5 pr-12 bg-stone-50 border-2 border-stone-100 rounded-2xl font-black uppercase text-[11px] appearance-none outline-none focus:border-coffee-800 focus:bg-white transition-all"
                 >
                   <option value="">PILIH...</option>
                   {categories.map((cat) => (
@@ -199,7 +212,6 @@ export function Products() {
               </div>
             </div>
 
-            {/* Status Toggle */}
             <div className="space-y-2">
               <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">
                 Status Menu
@@ -211,7 +223,7 @@ export function Products() {
                   className={`flex-1 h-full rounded-xl text-[10px] font-black uppercase transition-all ${
                     isActive
                       ? "bg-white shadow-sm text-coffee-900"
-                      : "text-stone-400"
+                      : "text-stone-400 hover:text-stone-600"
                   }`}
                 >
                   Aktif
@@ -222,7 +234,7 @@ export function Products() {
                   className={`flex-1 h-full rounded-xl text-[10px] font-black uppercase transition-all ${
                     !isActive
                       ? "bg-white shadow-md text-red-600"
-                      : "text-stone-400"
+                      : "text-stone-400 hover:text-stone-600"
                   }`}
                 >
                   Off
@@ -234,9 +246,16 @@ export function Products() {
           {/* Varian Section */}
           <div className="space-y-4 pt-6 border-t-2 border-dashed border-stone-100">
             <div className="flex justify-between items-center">
-              <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
-                Varian & Harga
-              </label>
+              <div>
+                <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+                  Varian & Harga
+                </label>
+                {selectedProduct && (
+                  <p className="text-[9px] font-bold text-amber-600 uppercase">
+                    Resep diatur di halaman terpisah
+                  </p>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={addVariant}
@@ -246,11 +265,11 @@ export function Products() {
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
               {variantFields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="flex gap-2 group animate-in slide-in-from-top-1"
+                  className="flex gap-2 group animate-in slide-in-from-top-2 duration-200"
                 >
                   <input
                     {...register(`variants.${index}.name`)}
@@ -280,29 +299,54 @@ export function Products() {
                   </button>
                 </div>
               ))}
+              {variantFields.length === 0 && (
+                <div className="text-center py-4 border-2 border-dashed border-stone-100 rounded-2xl">
+                  <p className="text-[10px] font-bold text-stone-300 uppercase">
+                    Minimal satu varian dibutuhkan
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-5 bg-coffee-900 text-white rounded-[24px] font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-xl shadow-coffee-900/20 disabled:opacity-50"
-          >
-            {loading
-              ? "MENYEDUH..."
-              : selectedProduct
-              ? "UPDATE MENU"
-              : "PUBLISH KE KASIR"}
-          </button>
+          <div className="flex flex-col gap-3 pt-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-5 bg-coffee-900 text-white rounded-[24px] font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-xl shadow-coffee-900/20 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : selectedProduct ? (
+                "UPDATE MENU"
+              ) : (
+                "PUBLISH KE KASIR"
+              )}
+            </button>
+
+            {selectedProduct && (
+              <button
+                type="button"
+                onClick={() =>
+                  (window.location.href = `/products/${selectedProduct.id}/recipe`)
+                }
+                className="w-full py-4 bg-white border-2 border-stone-100 text-stone-600 rounded-[24px] font-black uppercase tracking-widest text-[10px] hover:bg-stone-50 transition-all flex items-center justify-center gap-2"
+              >
+                <FlaskConical size={14} />
+                Edit Resep Bahan Baku
+              </button>
+            )}
+          </div>
         </form>
       </Modal>
+
+      {/* MODAL KONFIRMASI HAPUS */}
       <Modal
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
         title="Konfirmasi Hapus"
       >
         <div className="flex flex-col items-center text-center py-6 space-y-6">
-          {/* Icon Peringatan */}
           <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-500 animate-bounce">
             <Trash2 size={40} />
           </div>

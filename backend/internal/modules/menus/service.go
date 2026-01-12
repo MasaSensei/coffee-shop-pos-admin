@@ -4,6 +4,7 @@ import "github.com/MasaSensei/pos-admin/internal/shared/utils"
 
 type Service interface {
 	GetAll(page, limit int) (utils.PaginatedResponse, error)
+	GetByID(id int) (Menu, error)
 	Create(m Menu) (int, error)
 	Update(id int, m Menu) error
 }
@@ -30,3 +31,7 @@ func (s *service) GetAll(page, limit int) (utils.PaginatedResponse, error) {
 func (s *service) Create(m Menu) (int, error) { return s.repo.Create(m) }
 
 func (s *service) Update(id int, m Menu) error { return s.repo.Update(id, m) }
+
+func (s *service) GetByID(id int) (Menu, error) {
+	return s.repo.GetByID(id)
+}

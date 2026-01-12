@@ -14,5 +14,6 @@ func RegisterRoute(router fiber.Router, db *sql.DB) {
 	menus := router.Group("/menus")
 	menus.Get("/", handler.Index)
 	menus.Post("/", handler.Store)
+	menus.Get("/:id", handler.Show)
 	menus.Put("/:id", handler.Update)
 }
