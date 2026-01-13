@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Reset standar untuk aplikasi Desktop (Wails) */
+:root {
+  color-scheme: dark; /* Paksa mode gelap agar scrollbar dsb ikut gelap */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Penting agar aplikasi desktop tidak 'membal' saat di-scroll */
+  background-color: #050505; /* Warna background tactical dark kamu */
+}
+
+/* Opsional: Font Khusus Tactical jika ingin */
+@theme {
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+}

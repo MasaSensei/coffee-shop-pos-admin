@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
+	"github.com/MasaSensei/pos-admin/database"
 	"github.com/MasaSensei/pos-admin/internal/app"
 	config "github.com/MasaSensei/pos-admin/internal/config/database"
-	"github.com/MasaSensei/pos-admin/internal/shared/database"
 	"github.com/MasaSensei/pos-admin/internal/shared/seed"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +18,8 @@ func main() {
 
 	// --- TAMBAHKAN MIDDLEWARE CORS DI SINI ---
 	appFiber.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173, http://127.0.0.1:5173", // URL Vite kamu
+		// Fiber membaca koma sebagai pemisah, tapi pastikan tidak ada spasi ekstra
+		AllowOrigins: "http://localhost:5173,http://localhost:5174,http://localhost:34115",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
 	}))
