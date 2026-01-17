@@ -4,46 +4,71 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/MasaSensei/pos-admin/internal/shared/utils"
 )
 
 type Service interface {
-	Checkout(ctx context.Context, input Transaction) (int, error)
+	ProcessTransaction(ctx context.Context, t Transaction) (*Transaction, error)
 }
 
 type service struct {
-	repo Repository
-	// Kita nanti butuh akses ke repo ingredients untuk ambil harga modal (HPP)
-	// Tapi untuk sekarang kita asumsikan hitungan di Repo sudah cukup
+	repo      Repository
+	xenditKey string
 }
 
-func NewService(repo Repository) Service { return &service{repo} }
+func NewService(repo Repository, xenditKey string) Service {
+	return &service{
+		repo:      repo,
+		xenditKey: xenditKey,
+	}
+}
 
-func (s *service) Checkout(ctx context.Context, t Transaction) (int, error) {
-	// 1. Logic: Generate Invoice Number profesional
+func (s *service) ProcessTransaction(ctx context.Context, t Transaction) (*Transaction, error) {
+	// 1. Generate Invoice No
 	t.InvoiceNo = fmt.Sprintf("INV/%s/%d", time.Now().Format("20060102"), time.Now().Unix())
 
-	// 2. Logic: Hitung hitungan uang
+	// 2. Hitung Subtotal dari Items
 	t.Subtotal = 0
 	for i, item := range t.Items {
-		// Hitung subtotal per item
 		itemSubtotal := float64(item.Qty) * item.PriceAtSale
-		t.Items[i].CostAtSale = 0 // Nanti bisa diisi dari avg_cost_price bahan
+		t.Items[i].CostAtSale = 0 // Opsional: Ambil dari DB jika perlu HPP
 		t.Subtotal += itemSubtotal
 	}
 
-	// Hitung Grand Total (Contoh Tax 11%)
+	// 3. Hitung Pajak (11%) & Grand Total
 	t.TaxAmount = t.Subtotal * 0.11
 	t.GrandTotal = t.Subtotal + t.TaxAmount - t.DiscountAmount
 
-	// 3. Logic: Hitung Kembalian & Validasi Pembayaran
-	if t.AmountPaid < t.GrandTotal {
-		return 0, fmt.Errorf("pembayaran kurang! total: %.2f, dibayar: %.2f", t.GrandTotal, t.AmountPaid)
+	// 4. LOGIC PEMBAYARAN BERDASARKAN METODE
+	if t.PaymentMethodID == 2 {
+		// --- LOGIC QRIS ---
+		qrRes, err := utils.CreateXenditQRIS(s.xenditKey, t.InvoiceNo, t.GrandTotal)
+		if err != nil {
+			return nil, fmt.Errorf("gagal generate QRIS: %v", err)
+		}
+		t.PaymentReference = qrRes.ID
+		t.QRString = qrRes.QRString
+		t.Status = "PAID" //SEHARUSNYA PENDING
+		t.AmountPaid = 0  // QRIS belum dibayar saat checkout dibuat
+		t.ChangeAmount = 0
+	} else {
+		// --- LOGIC TUNAI / CASH ---
+		if t.AmountPaid < t.GrandTotal {
+			return nil, fmt.Errorf("pembayaran kurang! total: %.2f, dibayar: %.2f", t.GrandTotal, t.AmountPaid)
+		}
+		t.ChangeAmount = t.AmountPaid - t.GrandTotal
+		t.Status = "COMPLETED"
 	}
-	t.ChangeAmount = t.AmountPaid - t.GrandTotal
 
-	// 4. Default Status
-	t.Status = "PAID"
 	t.CreatedAt = time.Now()
 
-	return s.repo.CreateTransaction(ctx, t)
+	// 5. Simpan ke Database melalui Repo
+	id, err := s.repo.CreateTransaction(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+
+	t.ID = id
+	return &t, nil
 }

@@ -19,7 +19,7 @@ func main() {
 	// --- TAMBAHKAN MIDDLEWARE CORS DI SINI ---
 	appFiber.Use(cors.New(cors.Config{
 		// Fiber membaca koma sebagai pemisah, tapi pastikan tidak ada spasi ekstra
-		AllowOrigins: "http://localhost:5173,http://localhost:5174,http://localhost:34115",
+		AllowOrigins: "*",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
 	}))

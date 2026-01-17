@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "lucide-preact": "^0.562.0",
+    "qrcode": "^1.5.4"
+  }
+}

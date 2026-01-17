@@ -25,15 +25,17 @@ func (r *repository) CreateTransaction(ctx context.Context, t Transaction) (int,
 
 	// 1. Simpan Header Transaksi
 	queryT := `INSERT INTO transactions (
-		invoice_no, queue_number, shift_id, user_id, customer_id, 
-		payment_method_id, order_source, order_type, subtotal, 
-		tax_amount, discount_amount, grand_total, amount_paid, change_amount, status
-	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    invoice_no, queue_number, shift_id, user_id, customer_id, 
+    payment_method_id, order_source, order_type, subtotal, 
+    tax_amount, discount_amount, grand_total, amount_paid, 
+    change_amount, status, payment_reference, qr_string
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	res, err := tx.ExecContext(ctx, queryT,
 		t.InvoiceNo, t.QueueNumber, t.ShiftID, t.UserID, t.CustomerID,
 		t.PaymentMethodID, t.OrderSource, t.OrderType, t.Subtotal,
-		t.TaxAmount, t.DiscountAmount, t.GrandTotal, t.AmountPaid, t.ChangeAmount, t.Status)
+		t.TaxAmount, t.DiscountAmount, t.GrandTotal, t.AmountPaid,
+		t.ChangeAmount, t.Status, t.PaymentReference, t.QRString)
 	if err != nil {
 		return 0, err
 	}

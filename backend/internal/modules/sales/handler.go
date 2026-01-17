@@ -16,18 +16,19 @@ func (h *Handler) Store(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Format data tidak valid"})
 	}
 
-	// Validasi minimal item
 	if len(input.Items) == 0 {
 		return c.Status(400).JSON(fiber.Map{"error": "Keranjang belanja kosong"})
 	}
 
-	id, err := h.svc.Checkout(c.Context(), input)
+	// Memanggil fungsi ProcessTransaction yang sudah diperbaiki
+	result, err := h.svc.ProcessTransaction(c.Context(), input)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		// Jika error karena "pembayaran kurang", status code 400 lebih tepat
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.Status(201).JSON(fiber.Map{
 		"message": "Transaksi Berhasil",
-		"id":      id,
+		"data":    result, // Mengembalikan object lengkap termasuk QRString
 	})
 }

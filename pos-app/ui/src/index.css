@@ -16,3 +16,32 @@ body {
 @theme {
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 }
+
+@media print {
+  /* Sembunyikan semua elemen dashboard */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Tampilkan hanya area struk */
+  #thermal-receipt,
+  #thermal-receipt * {
+    visibility: visible;
+  }
+
+  /* Posisikan struk di pojok kiri atas kertas print */
+  #thermal-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm; /* Standar lebar kertas thermal */
+    box-shadow: none;
+    border: none;
+  }
+
+  /* Hilangkan header/footer default browser (tanggal, url, dll) */
+  @page {
+    margin: 0;
+    size: auto;
+  }
+}

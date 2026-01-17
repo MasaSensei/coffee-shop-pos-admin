@@ -17,11 +17,13 @@ import (
 	"github.com/MasaSensei/pos-admin/internal/modules/shifts"
 	"github.com/MasaSensei/pos-admin/internal/modules/suppliers"
 	"github.com/MasaSensei/pos-admin/internal/modules/user"
+	"github.com/MasaSensei/pos-admin/internal/shared/config"
 	"github.com/MasaSensei/pos-admin/internal/shared/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
 func Register(app *fiber.App, db *sql.DB) {
+	cfg := config.LoadConfig()
 	// Root API Group
 	api := app.Group("/api/v1")
 
@@ -40,6 +42,6 @@ func Register(app *fiber.App, db *sql.DB) {
 	purchasing.RegisterRoute(api, db)
 	payment_methods.RegisterRoute(api, db)
 	shifts.RegisterRoute(api, db)
-	sales.RegisterRoute(api, db)
+	sales.RegisterRoute(api, db, cfg.XenditSecretKey)
 	dashboard.RegisterRoute(api, db)
 }

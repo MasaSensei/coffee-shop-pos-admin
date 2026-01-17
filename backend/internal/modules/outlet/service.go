@@ -9,6 +9,7 @@ type Service interface {
 	Create(req CreateRequest) (int64, error)
 	FindAll(page, limit int) ([]Outlet, int, error)
 	GetDetail(id, shiftPage, shiftLimit int) (*OutletDetailResponse, int, error)
+	GetByID(id int) (*Outlet, error)
 }
 
 type service struct {
@@ -54,4 +55,11 @@ func (s *service) GetDetail(id, shiftPage, shiftLimit int) (*OutletDetailRespons
 
 	// Memanggil repository GetDetail (asumsi repo sudah diupdate ke GetDetail)
 	return s.repo.GetDetail(id, shiftPage, shiftLimit)
+}
+
+func (s *service) GetByID(id int) (*Outlet, error) {
+	if id <= 0 {
+		return nil, errors.New("ID outlet tidak valid")
+	}
+	return s.repo.GetByID(id)
 }

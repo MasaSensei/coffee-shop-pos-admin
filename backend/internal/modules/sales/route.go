@@ -6,16 +6,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterRoute(router fiber.Router, db *sql.DB) {
+// Tambahkan parameter xenditKey
+func RegisterRoute(router fiber.Router, db *sql.DB, xenditKey string) {
 	// Inisialisasi Layer
 	repo := NewRepository(db)
-	svc := NewService(repo)
+
+	// Suntikkan xenditKey ke Service
+	svc := NewService(repo, xenditKey)
 	handler := NewHandler(svc)
 
-	// Grouping Route Sales
 	s := router.Group("/sales")
-
-	// Endpoint utama untuk transaksi (Checkout)
 	s.Post("/checkout", handler.Store)
-
 }

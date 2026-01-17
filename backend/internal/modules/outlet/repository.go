@@ -2,12 +2,14 @@ package outlet
 
 import (
 	"database/sql"
+	"errors"
 )
 
 type Repository interface {
 	Insert(o Outlet) (int64, error)
 	FindAll(page, limit int) ([]Outlet, int, error)
 	GetDetail(id int, shiftPage, shiftLimit int) (*OutletDetailResponse, int, error)
+	GetByID(id int) (*Outlet, error)
 }
 
 type repository struct {
@@ -122,4 +124,33 @@ func (r *repository) GetDetail(id int, shiftPage, shiftLimit int) (*OutletDetail
 	}
 
 	return &detail, totalShifts, nil
+}
+
+func (r *repository) GetByID(id int) (*Outlet, error) {
+	var o Outlet
+	query := `
+        SELECT 
+            id, name, address, phone, is_active, created_at, updated_at 
+        FROM outlets 
+        WHERE id = ? 
+        LIMIT 1`
+
+	err := r.DB.QueryRow(query, id).Scan(
+		&o.ID,
+		&o.Name,
+		&o.Address,
+		&o.Phone,
+		&o.IsActive,
+		&o.CreatedAt,
+		&o.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("outlet tidak ditemukan")
+		}
+		return nil, err
+	}
+
+	return &o, nil
 }

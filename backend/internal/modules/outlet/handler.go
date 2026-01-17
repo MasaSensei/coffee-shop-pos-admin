@@ -65,3 +65,19 @@ func (h *Handler) Show(c *fiber.Ctx) error {
 		"meta_shifts": utils.CreateMeta(totalShifts, shiftPage, shiftLimit),
 	})
 }
+
+func (h *Handler) GetByID(c *fiber.Ctx) error {
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "ID tidak valid"})
+	}
+
+	outlet, err := h.svc.GetByID(id)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"data": outlet,
+	})
+}

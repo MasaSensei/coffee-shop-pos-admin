@@ -20,13 +20,18 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"message": "Format request salah"})
 	}
 
-	token, err := h.svc.Login(req.Username, req.Password)
+	loginData, err := h.svc.Login(req.Username, req.Password)
 	if err != nil {
 		return c.Status(401).JSON(fiber.Map{"message": err.Error()})
 	}
 
 	return c.JSON(fiber.Map{
-		"token": token,
-		"type":  "Bearer",
+		"token": loginData.Token,
+		"user_data": fiber.Map{
+			"id":        loginData.UserID,
+			"username":  loginData.Username,
+			"outlet_id": loginData.OutletID,
+			"role":      loginData.Role,
+		},
 	})
 }

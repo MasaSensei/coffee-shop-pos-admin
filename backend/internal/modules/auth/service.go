@@ -8,34 +8,46 @@ import (
 )
 
 type Service interface {
-	Login(username, password string) (string, error)
+	Login(username, password string) (*LoginResponse, error)
 }
 
 type service struct {
 	userRepo user.Repository
 }
 
+type LoginResponse struct {
+	Token    string
+	UserID   int
+	Username string
+	OutletID int
+	Role     string
+}
+
 func NewService(repo user.Repository) Service {
 	return &service{userRepo: repo}
 }
 
-func (s *service) Login(username, password string) (string, error) {
-	// 1. Cari user berdasarkan username
+func (s *service) Login(username, password string) (*LoginResponse, error) {
 	u, err := s.userRepo.GetByUsername(username)
 	if err != nil {
-		return "", errors.New("username atau password salah")
+		return nil, errors.New("username atau password salah")
 	}
 
-	// 2. Cek apakah password cocok
 	if !utils.CheckPasswordHash(password, u.PasswordHash) {
-		return "", errors.New("username atau password salah")
+		return nil, errors.New("username atau password salah")
 	}
 
-	// 3. Generate Token JWT
+	// Pass u.OutletID ke GenerateToken (sudah ada di kode kamu)
 	token, err := utils.GenerateToken(u.ID, u.Role, u.OutletID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	return &LoginResponse{
+		Token:    token,
+		UserID:   u.ID,
+		Username: u.Username,
+		OutletID: u.OutletID,
+		Role:     u.Role,
+	}, nil
 }
