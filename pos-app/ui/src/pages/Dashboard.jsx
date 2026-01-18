@@ -2,33 +2,17 @@ import { useEffect, useRef } from "preact/hooks";
 import { useDashboard } from "../hooks/useDashboard";
 import QRCode from "qrcode";
 
-/**
- * Komponen Khusus QR Code untuk Preact
- * Menghindari error internal hooks library React murni
- */
 function QRCodeDisplay({ text }) {
   const canvasRef = useRef(null);
-
   useEffect(() => {
     if (canvasRef.current && text) {
-      QRCode.toCanvas(
-        canvasRef.current,
-        text,
-        {
-          width: 200,
-          margin: 2,
-          color: {
-            dark: "#1F1916",
-            light: "#FFFFFF",
-          },
-        },
-        (error) => {
-          if (error) console.error("QR Code Error:", error);
-        },
-      );
+      QRCode.toCanvas(canvasRef.current, text, {
+        width: 200,
+        margin: 2,
+        color: { dark: "#1F1916", light: "#FFFFFF" },
+      });
     }
   }, [text]);
-
   return (
     <div className="bg-white p-4 rounded-2xl shadow-inner border border-stone-100 flex justify-center">
       <canvas ref={canvasRef} style={{ maxWidth: "100%", height: "auto" }} />
@@ -41,7 +25,7 @@ export default function Dashboard({ user, onLogout }) {
 
   return (
     <div className="flex h-screen bg-[#F8F5F2] text-[#2C2420] font-['Plus_Jakarta_Sans'] overflow-hidden select-none">
-      {/* COLUMN 1: SIDEBAR */}
+      {/* SIDEBAR */}
       <div className="w-24 bg-[#1F1916] flex flex-col items-center py-6 border-r border-stone-800">
         <div className="w-12 h-12 bg-[#4A3728] rounded-2xl mb-8 flex items-center justify-center text-white font-black italic shadow-lg">
           BF
@@ -66,32 +50,54 @@ export default function Dashboard({ user, onLogout }) {
             </button>
           ))}
         </div>
-        <button
-          onClick={onLogout}
-          className="mt-auto p-4 text-stone-500 hover:text-red-400"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
+
+        {/* BOTTOM SIDEBAR ACTIONS */}
+        <div className="mt-auto flex flex-col gap-4">
+          <button
+            onClick={() => actions.setShowEndShiftModal(true)}
+            className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
           >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14 5-5-5-5m5 5H9" />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10" />
+            </svg>
+          </button>
+          <button
+            onClick={onLogout}
+            className="p-4 text-stone-500 hover:text-red-400"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14 5-5-5-5m5 5H9" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {/* COLUMN 2: PRODUCT GRID */}
+      {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="p-8 flex justify-between items-center bg-white/50 backdrop-blur-sm">
           <div>
             <h1 className="text-3xl font-bold text-[#1F1916]">
               {state.outlet?.name.split(" ")[0] || "BrewFlow"}
             </h1>
-            <p className="text-xs text-stone-400 font-medium uppercase tracking-widest">
+            <p className="text-xs text-stone-400 font-medium uppercase tracking-widest tracking-tighter">
               Kasir: {user?.username} • Shift #{state.currentShiftId}
             </p>
           </div>
@@ -129,9 +135,9 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </div>
 
-      {/* COLUMN 3: CART & CHECKOUT */}
+      {/* CART SECTION */}
       <div className="w-[400px] bg-white border-l border-stone-100 flex flex-col shadow-xl">
-        <div className="p-6 border-b border-stone-50 flex justify-between items-center">
+        <div className="p-6 border-b border-stone-50">
           <h2 className="text-xl font-bold">
             Pesanan{" "}
             <span className="text-stone-300">
@@ -139,7 +145,6 @@ export default function Dashboard({ user, onLogout }) {
             </span>
           </h2>
         </div>
-
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {state.cart.map((item) => (
             <div
@@ -170,7 +175,6 @@ export default function Dashboard({ user, onLogout }) {
             </div>
           ))}
         </div>
-
         <div className="p-6 bg-stone-50 border-t border-stone-200 space-y-4">
           <div className="grid grid-cols-2 gap-2">
             <select
@@ -191,7 +195,6 @@ export default function Dashboard({ user, onLogout }) {
               <option value="3">Debit Card</option>
             </select>
           </div>
-
           {state.paymentMethod === "1" && (
             <input
               type="number"
@@ -201,7 +204,6 @@ export default function Dashboard({ user, onLogout }) {
               className="w-full bg-white border border-stone-200 rounded-xl py-3 px-4 text-sm font-bold outline-none"
             />
           )}
-
           <div className="pt-2 space-y-1">
             <div className="flex justify-between text-xs text-stone-400 font-bold">
               <span>Pajak (10%)</span>
@@ -214,7 +216,6 @@ export default function Dashboard({ user, onLogout }) {
               </span>
             </div>
           </div>
-
           <button
             onClick={actions.handleCheckout}
             disabled={
@@ -222,17 +223,68 @@ export default function Dashboard({ user, onLogout }) {
               state.isProcessing ||
               (state.paymentMethod === "1" && state.paidNumber < state.total)
             }
-            className={`w-full py-5 rounded-2xl font-bold text-white shadow-lg transition-all ${
-              state.cart.length === 0 ||
-              (state.paymentMethod === "1" && state.paidNumber < state.total)
-                ? "bg-stone-300 cursor-not-allowed"
-                : "bg-[#1F1916] hover:bg-[#4A3728]"
-            }`}
+            className={`w-full py-5 rounded-2xl font-bold text-white shadow-lg transition-all ${state.cart.length === 0 || (state.paymentMethod === "1" && state.paidNumber < state.total) ? "bg-stone-300 cursor-not-allowed" : "bg-[#1F1916] hover:bg-[#4A3728]"}`}
           >
             {state.isProcessing ? "Memproses..." : "Konfirmasi & Bayar"}
           </button>
         </div>
       </div>
+
+      {/* MODAL END SHIFT */}
+      {state.showEndShiftModal && (
+        <div className="fixed inset-0 bg-[#1F1916]/90 backdrop-blur-md z-[250] flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-black text-stone-800">
+                Akhiri Shift?
+              </h2>
+            </div>
+            <div className="bg-stone-50 rounded-2xl p-6 mb-8 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-stone-400 font-bold uppercase">
+                  Shift ID
+                </span>
+                <span className="font-bold text-stone-800">
+                  #{state.currentShiftId}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-stone-400 font-bold uppercase">
+                  Total Order
+                </span>
+                <span className="font-bold text-stone-800">
+                  {state.orderNumber - 1}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => actions.handleEndShift(onLogout)}
+              className="w-full py-4 bg-red-600 text-white rounded-2xl font-bold mb-2"
+            >
+              Ya, Akhiri Shift
+            </button>
+            <button
+              onClick={() => actions.setShowEndShiftModal(false)}
+              className="w-full py-4 text-stone-400 font-bold"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* MODAL PILIH VARIAN */}
       {state.selectedProduct && (
@@ -269,39 +321,33 @@ export default function Dashboard({ user, onLogout }) {
       {state.showSuccessModal && state.lastTransaction && (
         <div className="fixed inset-0 bg-[#1F1916]/90 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
           <div className="flex flex-col md:flex-row gap-6 max-w-4xl w-full items-start justify-center">
-            {/* AREA QRIS */}
             {state.lastTransaction.qrString && (
               <div className="bg-white p-8 rounded-[2.5rem] flex flex-col items-center shadow-2xl border-4 border-[#4A3728]">
-                <h3 className="font-black text-lg mb-4 text-[#1F1916]">
-                  SCAN UNTUK BAYAR
-                </h3>
-
-                {/* PEMBAHARUAN: Memakai QRCodeDisplay yang baru */}
+                <h3 className="font-black text-lg mb-4">SCAN UNTUK BAYAR</h3>
                 <QRCodeDisplay text={state.lastTransaction.qrString} />
-
                 <div className="mt-6 flex flex-col items-center">
                   <div className="flex gap-2 items-center mb-2">
-                    <span className="w-2 h-2 bg-orange-500 rounded-full animate-ping"></span>
-                    <p className="text-xs font-bold text-orange-600 uppercase tracking-tighter">
-                      Menunggu Pembayaran...
+                    <span
+                      className={`w-2 h-2 rounded-full ${state.lastTransaction.paymentStatus === "PAID" ? "bg-green-500" : "bg-orange-500 animate-ping"}`}
+                    ></span>
+                    <p
+                      className={`text-xs font-bold uppercase tracking-tighter ${state.lastTransaction.paymentStatus === "PAID" ? "text-green-600" : "text-orange-600"}`}
+                    >
+                      {state.lastTransaction.paymentStatus === "PAID"
+                        ? "Pembayaran Berhasil!"
+                        : "Menunggu Pembayaran..."}
                     </p>
                   </div>
-                  <p className="text-[10px] text-stone-400 font-medium">
-                    Invoice: {state.lastTransaction.orderNo}
-                  </p>
                 </div>
               </div>
             )}
-
-            {/* STRUK THERMAL */}
-            <div className="bg-white text-black p-8 w-[350px] shadow-2xl font-mono text-[11px] border-t-[12px] border-[#4A3728]">
-              <div className="text-center space-y-1 mb-6">
+            <div className="bg-white p-8 w-[350px] shadow-2xl font-mono text-[11px] border-t-[12px] border-[#4A3728]">
+              <div className="text-center mb-6">
                 <h2 className="text-base font-black uppercase">
                   {state.outlet?.name}
                 </h2>
-                <p className="text-[9px]">{state.outlet?.address}</p>
+                <p>{state.outlet?.address}</p>
               </div>
-              <div className="border-t border-dashed border-gray-300 my-4"></div>
               <div className="space-y-3 mb-6">
                 {state.lastTransaction.items.map((item, idx) => (
                   <div key={idx} className="flex justify-between font-bold">

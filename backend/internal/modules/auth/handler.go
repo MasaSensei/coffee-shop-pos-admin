@@ -25,8 +25,10 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return c.Status(401).JSON(fiber.Map{"message": err.Error()})
 	}
 
+	// Tambahkan "active_shift_id" di dalam return JSON
 	return c.JSON(fiber.Map{
-		"token": loginData.Token,
+		"token":           loginData.Token,
+		"active_shift_id": loginData.ActiveShiftID, // Kirim ID Shift aktif (bisa null)
 		"user_data": fiber.Map{
 			"id":        loginData.UserID,
 			"username":  loginData.Username,

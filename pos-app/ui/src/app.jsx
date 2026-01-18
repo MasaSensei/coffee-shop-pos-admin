@@ -2,7 +2,7 @@ import { useState, useEffect } from "preact/hooks";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import OpenShift from "./pages/OpenShift";
-import { shiftService } from "./services/shiftService";
+import { shiftService } from "./services/shift.service";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -12,10 +12,17 @@ export default function App() {
   const checkShift = async (userId) => {
     try {
       const res = await shiftService.checkActive(userId);
-      // Jika res sukses, berarti ada shift aktif
-      setActiveShift(res.data);
+      // Jika Backend sukses mengembalikan data shift aktif
+      if (res.data && res.data.data) {
+        localStorage.setItem("active_shift_id", res.data.data.id);
+        setActiveShift(res.data.data);
+      } else {
+        setActiveShift(null);
+      }
     } catch (err) {
-      // Jika 404 (Error), berarti belum open shift
+      // Jika Backend return 404 (No active shift), ini normal.
+      console.log("No active shift detected.");
+      localStorage.removeItem("active_shift_id");
       setActiveShift(null);
     } finally {
       setLoading(false);
@@ -41,7 +48,7 @@ export default function App() {
       </div>
     );
 
-  // 1. Login Logic
+  // 1. Jika Belum Login
   if (!user)
     return (
       <Login
@@ -53,23 +60,31 @@ export default function App() {
       />
     );
 
-  // 2. Shift Logic
+  // 2. Jika Belum Buka Shift (activeShift === null)
   if (!activeShift)
     return (
       <OpenShift
         user={user}
-        onOpenSuccess={(shiftData) => {
-          // shiftData adalah { message, shift_id } dari backend
+        onOpenSuccess={(res) => {
+          // Backend kamu mengembalikan response sukses setelah POST /shifts
+          // Kita langsung set activeShift agar layar berpindah ke Dashboard
+          const shiftData = res.data || res;
           setActiveShift(shiftData);
+          localStorage.setItem(
+            "active_shift_id",
+            shiftData.id || shiftData.shift_id,
+          );
+
+          // Opsional: panggil checkShift lagi untuk memastikan data sinkron
+          checkShift(user.id);
         }}
       />
     );
 
-  // 3. Main Dashboard
+  // 3. Masuk ke Dashboard
   return (
     <Dashboard
       user={user}
-      activeShift={activeShift}
       onLogout={() => {
         setUser(null);
         setActiveShift(null);

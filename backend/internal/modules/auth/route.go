@@ -8,9 +8,8 @@ import (
 )
 
 func RegisterRoute(router fiber.Router, db *sql.DB) {
-	// Kita butuh user repo karena Auth ngecek data ke tabel users
 	userRepo := user.NewRepository(db)
-	svc := NewService(userRepo)
+	svc := NewService(userRepo, db) // Kirim db di sini
 	handler := NewHandler(svc)
 
 	auth := router.Group("/auth")
